@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro — Daniel</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --bg4: #1e1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --green: #3ecf8e;
+    --green-dim: rgba(62,207,142,0.12);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.12);
+    --yellow: #fbbf24;
+    --yellow-dim: rgba(251,191,36,0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.12);
+    --purple: #a78bfa;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  /* LOGIN */
+  #login-screen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+    padding: 1rem;
+  }
+  .login-card {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 360px;
+    text-align: center;
+  }
+  .login-logo {
+    width: 52px; height: 52px; background: var(--green-dim);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.25rem; font-size: 24px;
+  }
+  .login-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .login-sub { color: var(--text2); font-size: 13px; margin-bottom: 1.75rem; }
+  .login-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
+    font-size: 14px; margin-bottom: 10px; outline: none; transition: border 0.2s;
+  }
+  .login-input:focus { border-color: var(--green); }
+  .login-btn {
+    width: 100%; background: var(--green); color: #0a0a0f;
+    border: none; border-radius: var(--radius-sm); padding: 12px;
+    font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;
+    transition: opacity 0.15s;
+  }
+  .login-btn:hover { opacity: 0.88; }
+  .login-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* APP */
+  #app { display: none; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 220px;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; z-index: 10; padding: 1.25rem 0;
+  }
+  .sidebar-logo {
+    padding: 0 1.25rem 1.25rem; border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+  }
+  .sidebar-logo-mark {
+    width: 36px; height: 36px; background: var(--green-dim);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 10px;
+  }
+  .sidebar-name { font-weight: 600; font-size: 14px; }
+  .sidebar-role { color: var(--text2); font-size: 12px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 1.25rem; color: var(--text2); cursor: pointer;
+    border-radius: 0; transition: background 0.15s, color 0.15s;
+    font-size: 13px; margin: 1px 8px; border-radius: var(--radius-sm);
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--bg4); color: var(--text); font-weight: 500; }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-section { font-size: 10px; color: var(--text3); padding: 12px 1.25rem 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .sidebar-bottom { margin-top: auto; padding: 0 8px; }
+  .logout-btn {
+    display: flex; align-items: center; gap: 10px; padding: 9px 1rem;
+    color: var(--text3); cursor: pointer; border-radius: var(--radius-sm);
+    font-size: 13px; width: 100%; transition: color 0.15s;
+  }
+  .logout-btn:hover { color: var(--red); }
+
+  /* MAIN */
+  .main { margin-left: 220px; padding: 1.75rem 2rem; min-height: 100vh; }
+
+  /* PAGE */
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-header { margin-bottom: 1.5rem; }
+  .page-title { font-size: 22px; font-weight: 600; }
+  .page-sub { color: var(--text2); font-size: 13px; margin-top: 2px; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem;
+  }
+  .card-title { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+
+  /* METRIC GRID */
+  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+  .metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
+  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .metric-val { font-size: 24px; font-weight: 600; line-height: 1; }
+  .metric-change { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .txt-green { color: var(--green); }
+  .txt-red { color: var(--red); }
+  .txt-yellow { color: var(--yellow); }
+  .txt-blue { color: var(--blue); }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .mb { margin-bottom: 1.25rem; }
+
+  /* TABLE */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { color: var(--text2); font-weight: 500; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .tbl td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: var(--bg3); }
+
+  /* BADGES */
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+
+  /* ALERTS */
+  .alert { border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-bottom: 8px; border-left: 3px solid; }
+  .alert-red { background: var(--red-dim); border-color: var(--red); color: #fca5a5; }
+  .alert-yellow { background: var(--yellow-dim); border-color: var(--yellow); color: #fcd34d; }
+  .alert-green { background: var(--green-dim); border-color: var(--green); color: #6ee7b7; }
+  .alert-label { font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* CAT DOT */
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+  /* MONTH SELECTOR */
+  .month-tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .month-tab {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer;
+    border: 1px solid var(--border2); color: var(--text2); background: var(--bg2);
+    transition: all 0.15s;
+  }
+  .month-tab.active { background: var(--green); color: #0a0a0f; border-color: var(--green); font-weight: 600; }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .filter-tab {
+    padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer;
+    border: 1px solid var(--border); color: var(--text2); background: transparent;
+    transition: all 0.15s;
+  }
+  .filter-tab.active { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+
+  /* PROGRESS BAR */
+  .prog-wrap { background: var(--bg4); border-radius: 4px; height: 6px; margin-top: 6px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+  /* ADD MONTH FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .form-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text);
+    font-size: 13px; outline: none; transition: border 0.2s;
+  }
+  .form-input:focus { border-color: var(--green); }
+  .btn-primary {
+    background: var(--green); color: #0a0a0f; border: none;
+    border-radius: var(--radius-sm); padding: 10px 20px; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-ghost {
+    background: transparent; color: var(--text2); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 10px 20px; font-size: 13px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
+
+  /* PROJECTION */
+  .proj-scenario {
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem;
+    flex: 1;
+  }
+  .proj-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .proj-val { font-size: 20px; font-weight: 600; }
+  .proj-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 1rem; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* CANVAS FIX */
+  canvas { max-width: 100%; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  /* FLEX */
+  .flex { display: flex; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .flex-center { display: flex; align-items: center; }
+  .gap-sm { gap: 8px; }
+  .gap-md { gap: 12px; }
+  .mt-sm { margin-top: 8px; }
+  .mt-md { margin-top: 12px; }
+  .mt-lg { margin-top: 1.5rem; }
+
+  /* STATUS INDICATOR */
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">💰</div>
+    <div class="login-title">Financeiro pessoal</div>
+    <div class="login-sub">Acesso restrito — Daniel</div>
+    <input class="login-input" id="login-user" type="text" placeholder="Usuário" autocomplete="username" />
+    <input class="login-input" id="login-pass" type="password" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">💰</div>
+      <div class="sidebar-name">Daniel Gomes</div>
+      <div class="sidebar-role">Personal Trainer · RJ</div>
+    </div>
+    <div class="nav-section">Visão geral</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('meses',this)">
+      <span class="nav-icon">📅</span> Por mês
+    </div>
+    <div class="nav-item" onclick="showPage('transacoes',this)">
+      <span class="nav-icon">🧾</span> Transações
+    </div>
+    <div class="nav-section">Planejamento</div>
+    <div class="nav-item" onclick="showPage('projecao',this)">
+      <span class="nav-icon">📈</span> Projeção
+    </div>
+    <div class="nav-item" onclick="showPage('metas',this)">
+      <span class="nav-icon">🎯</span> Metas
+    </div>
+    <div class="nav-item" onclick="showPage('adicionar',this)">
+      <span class="nav-icon">➕</span> Adicionar mês
+    </div>
+    <div class="sidebar-bottom">
+      <div class="nav-section">Conta</div>
+      <button class="logout-btn" onclick="doLogout()">
+        <span class="nav-icon">🚪</span> Sair
+      </button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Maio — Junho 2026 · Renda: R$ 9.000 (mês acima da média)</div>
+      </div>
+
+      <div class="metrics-grid mb">
+        <div class="metric">
+          <div class="metric-label">Renda do mês</div>
+          <div class="metric-val txt-green">R$ 9.000</div>
+          <div class="metric-change">+20% vs média de R$7.500</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total gasto</div>
+          <div class="metric-val txt-red">R$ 8.978</div>
+          <div class="metric-change">Faturas + fixos estimados</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Saldo real</div>
+          <div class="metric-val txt-yellow">R$ 22</div>
+          <div class="metric-change">⚠️ Margem crítica</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Limit. Santander</div>
+          <div class="metric-val txt-red">93,7%</div>
+          <div class="metric-change">R$8.255 de R$8.810</div>
+        </div>
+      </div>
+
+      <div class="grid-2 mb">
+        <div class="card">
+          <div class="card-title">gastos por categoria</div>
+          <div style="position:relative;height:220px;">
+            <canvas id="c-donut" role="img" aria-label="Pizza com gastos por categoria"></canvas>
+          </div>
+          <div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;color:var(--text2);"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">evolução mensal</div>
+          <div style="position:relative;height:220px;">
+            <canvas id="c-evol" role="img" aria-label="Evolução mensal de renda vs gastos"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb">
+        <div class="card-title">diagnóstico — alertas do mês</div>
+        <div class="alert alert-red">
+          <span class="alert-label">🚨 Santander no limite (93,7%)</span>
+          R$ 8.255 usados de R$ 8.810. Qualquer compra acima de R$ 554 bloqueia. Juros de 16,49% a.m. se não pagar total.
+        </div>
+        <div class="alert alert-red">
+          <span class="alert-label">🚨 Saldo real de apenas R$ 22</span>
+          Num mês de renda média (R$ 7.500), déficit seria de <strong>-R$ 1.478</strong>. Sem reserva de emergência.
+        </div>
+        <div class="alert alert-yellow">
+          <span class="alert-label">⚠️ Delivery: R$ 555 no mês</span>
+          Meta declarada: R$ 210. Corte possível de R$ 345/mês — quase cobre o déficit médio inteiro.
+        </div>
+        <div class="alert alert-yellow">
+          <span class="alert-label">⚠️ Noiva: R$ 836 nas faturas</span>
+          MacBook (R$ 542/mês, mais 6x) + TikTok + Shein + Shopee cosméticos. Renegociar após fim do parcelamento.
+        </div>
+        <div class="alert alert-green">
+          <span class="alert-label">✅ Wellhub cancelado</span>
+          R$ 479,80 recuperados a partir do próximo mês. Boa decisão.
+        </div>
+      </div>
+
+      <div class="card mb">
+        <div class="card-title">resumo de categorias</div>
+        <div id="cat-summary"></div>
+      </div>
+    </div>
+
+    <!-- MESES -->
+    <div id="page-meses" class="page">
+      <div class="page-header">
+        <div class="page-title">Histórico por mês</div>
+        <div class="page-sub">Acompanhe sua evolução mês a mês</div>
+      </div>
+      <div class="month-tabs" id="month-tabs"></div>
+      <div id="month-detail"></div>
+    </div>
+
+    <!-- TRANSAÇÕES -->
+    <div id="page-transacoes" class="page">
+      <div class="page-header">
+        <div class="page-title">Todas as transações</div>
+        <div class="page-sub">Faturas Itaú + Santander — Maio/Junho 2026</div>
+      </div>
+      <div class="filter-tabs" id="txn-filters"></div>
+      <div class="card">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Cartão</th>
+              <th style="text-align:right">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="txn-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text2);" id="txn-total"></div>
+    </div>
+
+    <!-- PROJEÇÃO -->
+    <div id="page-projecao" class="page">
+      <div class="page-header">
+        <div class="page-title">Projeção financeira</div>
+        <div class="page-sub">Simule cenários e veja o impacto dos seus cortes</div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div class="proj-scenario">
+          <div class="proj-label">Mês atual (R$9k)</div>
+          <div class="proj-val txt-yellow">+R$ 22</div>
+          <div class="proj-desc">Margem mínima. Qualquer imprevisto = dívida.</div>
+        </div>
+        <div class="proj-scenario">
+          <div class="proj-label">Mês médio (R$7,5k)</div>
+          <div class="proj-val txt-red">-R$ 1.478</div>
+          <div class="proj-desc">Déficit real na maioria dos meses.</div>
+        </div>
+        <div class="proj-scenario">
+          <div class="proj-label">Com cortes (sem Wellhub + delivery ok)</div>
+          <div class="proj-val txt-green">+R$ 347</div>
+          <div class="proj-desc">Economizando R$ 825/mês nos pontos críticos.</div>
+        </div>
+        <div class="proj-scenario">
+          <div class="proj-label">Meta de reserva (6 meses)</div>
+          <div class="proj-val txt-blue">R$ 45.000</div>
+          <div class="proj-desc">~3,7 anos no ritmo atual. Com cortes: ~1,5 anos.</div>
+        </div>
+      </div>
+
+      <div class="card mb">
+        <div class="card-title">simulador interativo</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:1rem;">
+          <div>
+            <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:6px;">RENDA MENSAL</label>
+            <input type="range" id="sl-renda" min="5000" max="15000" step="100" value="7500" style="width:100%;" oninput="updateSim()">
+            <div style="font-size:13px;font-weight:600;margin-top:4px;" id="sl-renda-val">R$ 7.500</div>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:6px;">DELIVERY / MÊS</label>
+            <input type="range" id="sl-delivery" min="0" max="800" step="10" value="555" style="width:100%;" oninput="updateSim()">
+            <div style="font-size:13px;font-weight:600;margin-top:4px;" id="sl-delivery-val">R$ 555</div>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:6px;">WELLHUB</label>
+            <input type="range" id="sl-wh" min="0" max="480" step="480" value="480" style="width:100%;" oninput="updateSim()">
+            <div style="font-size:13px;font-weight:600;margin-top:4px;" id="sl-wh-val">R$ 480 (ativo)</div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:1rem;display:flex;gap:24px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;color:var(--text2);">Gastos totais</div>
+            <div style="font-size:20px;font-weight:600;" id="sim-gastos">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text2);">Saldo projetado</div>
+            <div style="font-size:20px;font-weight:600;" id="sim-saldo">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text2);">Reserva em 12 meses</div>
+            <div style="font-size:20px;font-weight:600;" id="sim-reserva">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text2);">Status</div>
+            <div style="font-size:15px;font-weight:600;" id="sim-status">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">projeção de reserva — 12 meses</div>
+        <div style="position:relative;height:200px;">
+          <canvas id="c-proj" role="img" aria-label="Projeção de reserva em 12 meses"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- METAS -->
+    <div id="page-metas" class="page">
+      <div class="page-header">
+        <div class="page-title">Metas financeiras</div>
+        <div class="page-sub">O que você precisa conquistar</div>
+      </div>
+
+      <div class="grid-2 mb">
+        <div class="card">
+          <div class="card-title">metas de curto prazo (1-3 meses)</div>
+          <div id="metas-curto"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">metas de médio prazo (6-12 meses)</div>
+          <div id="metas-medio"></div>
+        </div>
+      </div>
+
+      <div class="card mb">
+        <div class="card-title">plano de ação — próximos 30 dias</div>
+        <table class="tbl">
+          <thead><tr><th>Ação</th><th>Impacto/mês</th><th>Dificuldade</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Cancelar Wellhub (ambos)</td><td class="txt-green">+R$ 480</td><td><span class="badge badge-green">Fácil</span></td><td><span class="badge badge-green">✓ Feito</span></td></tr>
+            <tr><td>Delivery: só sex + sáb</td><td class="txt-green">+R$ 345</td><td><span class="badge badge-yellow">Médio</span></td><td><span class="badge badge-yellow">Em progresso</span></td></tr>
+            <tr><td>Pagar fatura Santander total</td><td class="txt-green">Evitar juros 16,49%</td><td><span class="badge badge-red">Urgente</span></td><td><span class="badge badge-red">Pendente</span></td></tr>
+            <tr><td>Limitar ML/Shopee a R$100/mês</td><td class="txt-green">+R$ 280</td><td><span class="badge badge-yellow">Médio</span></td><td><span class="badge badge-yellow">Em progresso</span></td></tr>
+            <tr><td>Separar gastos noiva formalmente</td><td class="txt-green">+R$ 294 (pós MacBook)</td><td><span class="badge badge-red">Difícil</span></td><td><span class="badge badge-yellow">Conversar</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">receita de equilíbrio</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Para sair do déficit no mês médio (R$7.500):</div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="recipe-items"></div>
+      </div>
+    </div>
+
+    <!-- ADICIONAR MÊS -->
+    <div id="page-adicionar" class="page">
+      <div class="page-header">
+        <div class="page-title">Adicionar novo mês</div>
+        <div class="page-sub">Registre os gastos mensais para acompanhar sua evolução</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">informações do mês</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Mês / Ano</label>
+            <input class="form-input" id="f-mes" type="month" value="">
+          </div>
+          <div class="form-group">
+            <label>Renda total (R$)</label>
+            <input class="form-input" id="f-renda" type="number" placeholder="Ex: 7500">
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">Gastos por categoria (R$)</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Trabalho (academias + transp.)</label><input class="form-input" id="f-trab" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Saúde / farmácia</label><input class="form-input" id="f-saude" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Alimentação (mercado)</label><input class="form-input" id="f-alim" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Delivery</label><input class="form-input" id="f-deliv" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Moradia (financ. + fixos)</label><input class="form-input" id="f-mora" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Noiva / família</label><input class="form-input" id="f-noiva" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Assinaturas</label><input class="form-input" id="f-assin" type="number" placeholder="0"></div>
+          <div class="form-group"><label>Outros / impulso</label><input class="form-input" id="f-outros" type="number" placeholder="0"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:0.5rem;">
+          <button class="btn-primary" onclick="addMonth()">Salvar mês</button>
+          <button class="btn-ghost" onclick="clearForm()">Limpar</button>
+        </div>
+        <div id="form-msg" style="margin-top:10px;font-size:13px;display:none;"></div>
+      </div>
+
+      <div class="card mt-lg">
+        <div class="card-title">meses registrados</div>
+        <table class="tbl">
+          <thead><tr><th>Mês</th><th>Renda</th><th>Gastos</th><th>Saldo</th><th></th></tr></thead>
+          <tbody id="months-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─── AUTH ───────────────────────────────────────────────────────────────────
+const CREDS = { user: 'daniel', pass: 'personal2026' };
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  if (u === CREDS.user && p === CREDS.pass) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'fin_daniel_months';
+
+const CAT_META = {
+  trabalho:    { label: 'Trabalho', color: '#60a5fa', icon: '💼' },
+  saude:       { label: 'Saúde / farmácia', color: '#f87171', icon: '💊' },
+  alimentacao: { label: 'Alimentação', color: '#34d399', icon: '🛒' },
+  delivery:    { label: 'Delivery', color: '#fbbf24', icon: '🛵' },
+  moradia:     { label: 'Moradia', color: '#a78bfa', icon: '🏠' },
+  noiva:       { label: 'Noiva / família', color: '#f472b6', icon: '💑' },
+  assinatura:  { label: 'Assinaturas', color: '#94a3b8', icon: '📱' },
+  outros:      { label: 'Outros / impulso', color: '#64748b', icon: '📦' },
+};
+
+const INITIAL_MONTHS = [
+  {
+    id: 'mai-jun-2026', label: 'Maio/Jun 2026', month: '2026-05', renda: 9000,
+    cats: { trabalho:1432, saude:736, alimentacao:527, delivery:555, moradia:587, noiva:836, assinatura:222, outros:383 }
+  }
+];
+
+function getMonths() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return INITIAL_MONTHS;
+}
+
+function saveMonths(arr) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+const TXN_DATA = [
+  { date:'27/04', desc:'Sua Academia (Smartfit)', val:428.40, cat:'trabalho', card:'Santander' },
+  { date:'27-30/04', desc:'99Moto — transporte trabalho (abril)', val:87.10, cat:'trabalho', card:'Santander' },
+  { date:'05-27/05', desc:'99Moto — transporte trabalho (maio)', val:108.70, cat:'trabalho', card:'Santander' },
+  { date:'30/04', desc:'TreinarMe — app de treinos', val:140.00, cat:'trabalho', card:'Santander' },
+  { date:'14/04', desc:'Gym Holding (Simple Gym)', val:347.00, cat:'trabalho', card:'Itaú' },
+  { date:'14/03', desc:'CREF/RJ — parcela 2/10', val:42.00, cat:'trabalho', card:'Itaú' },
+  { date:'15/04', desc:'Wellhub Daniel (cancelado)', val:239.90, cat:'trabalho', card:'Itaú' },
+  { date:'29/04', desc:'Rede Drogarias Legitim', val:285.88, cat:'saude', card:'Santander' },
+  { date:'29/04', desc:'Rede Drogarias Legitim', val:236.09, cat:'saude', card:'Santander' },
+  { date:'08/04', desc:'CSB Drogarias', val:74.96, cat:'saude', card:'Itaú' },
+  { date:'08/04', desc:'Raia Drogasil', val:88.88, cat:'saude', card:'Itaú' },
+  { date:'12/04', desc:'CSB Drogarias', val:98.57, cat:'saude', card:'Itaú' },
+  { date:'01/04', desc:'IFD OFS RJ (farmácia)', val:114.78, cat:'saude', card:'Itaú' },
+  { date:'01/04', desc:'Carrefour', val:192.35, cat:'alimentacao', card:'Itaú' },
+  { date:'02/04', desc:'Carrefour', val:71.76, cat:'alimentacao', card:'Itaú' },
+  { date:'04/04', desc:'Carrefour (liq. cancelamento)', val:102.89, cat:'alimentacao', card:'Itaú' },
+  { date:'10/04', desc:'Carrefour', val:99.00, cat:'alimentacao', card:'Itaú' },
+  { date:'05/04', desc:'Padaria Real dos CD', val:57.46, cat:'alimentacao', card:'Itaú' },
+  { date:'02/05', desc:'99Food Ros Doceria Gourmet', val:151.89, cat:'delivery', card:'Santander' },
+  { date:'09/05', desc:'99Food Rei do Mate', val:59.72, cat:'delivery', card:'Santander' },
+  { date:'09/05', desc:'99Food', val:148.69, cat:'delivery', card:'Santander' },
+  { date:'22/05', desc:'99Food', val:178.29, cat:'delivery', card:'Santander' },
+  { date:'23/05', desc:'99Food', val:89.67, cat:'delivery', card:'Santander' },
+  { date:'21/05', desc:'99Food M Gourmet Confeit', val:35.35, cat:'delivery', card:'Santander' },
+  { date:'04/05', desc:'iFood', val:12.90, cat:'delivery', card:'Santander' },
+  { date:'15/04', desc:'Wellhub Carolina (noiva, cancelado)', val:239.90, cat:'noiva', card:'Itaú' },
+  { date:'02/12', desc:'Shopee — MacBook noiva (6/12)', val:542.17, cat:'noiva', card:'Santander' },
+  { date:'01/03', desc:'Shopee PlatinumHairCa (cosméticos 3/12)', val:124.91, cat:'noiva', card:'Santander' },
+  { date:'02/03', desc:'EBN TikTok (vestuário noiva)', val:133.79, cat:'noiva', card:'Itaú' },
+  { date:'01/04', desc:'TikTok Shop (vestuário noiva)', val:89.90, cat:'noiva', card:'Itaú' },
+  { date:'02/04', desc:'TikTok Shop (vestuário noiva)', val:59.90, cat:'noiva', card:'Itaú' },
+  { date:'09/03', desc:'CEA Modas (vestuário)', val:49.99, cat:'noiva', card:'Itaú' },
+  { date:'15/05', desc:'Shein (noiva)', val:254.11, cat:'noiva', card:'Santander' },
+  { date:'07/05', desc:'Spotify', val:31.90, cat:'assinatura', card:'Santander' },
+  { date:'17/05', desc:'Amazon Kindle Unlimited', val:24.90, cat:'assinatura', card:'Santander' },
+  { date:'06/05', desc:'Apple Com/Bill', val:19.90, cat:'assinatura', card:'Santander' },
+  { date:'15/05', desc:'Apple Com/Bill', val:65.90, cat:'assinatura', card:'Santander' },
+  { date:'08/05', desc:'MP MeliMais', val:9.90, cat:'assinatura', card:'Santander' },
+  { date:'29/05', desc:'Anuidade Santander diferenciada', val:27.50, cat:'assinatura', card:'Santander' },
+  { date:'03/12', desc:'Mercado Livre (parcela 6/7)', val:56.12, cat:'outros', card:'Itaú' },
+  { date:'04/04', desc:'Mercado Livre 2 produtos (2/2)', val:149.50, cat:'outros', card:'Santander' },
+  { date:'03/05', desc:'Mercado Livre', val:78.90, cat:'outros', card:'Santander' },
+  { date:'05/05', desc:'Mercado Livre', val:78.90, cat:'outros', card:'Santander' },
+  { date:'12/05', desc:'Mercado Livre', val:36.99, cat:'outros', card:'Santander' },
+  { date:'12/05', desc:'Mercado Livre', val:53.90, cat:'outros', card:'Santander' },
+  { date:'21/05', desc:'Mercado Livre', val:45.53, cat:'outros', card:'Santander' },
+  { date:'04/05', desc:'Shopee TechTrendLoja', val:121.87, cat:'outros', card:'Santander' },
+  { date:'21/05', desc:'Shopee Bigens', val:39.97, cat:'outros', card:'Santander' },
+  { date:'04/07', desc:'MercadoPago ShopMaisPets (areia gato 11/12)', val:41.02, cat:'outros', card:'Santander' },
+  { date:'04/07', desc:'Shopee LojasCharadas (11/12)', val:74.90, cat:'outros', card:'Santander' },
+];
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+let charts = {};
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'transacoes') renderTxn('todos');
+  if (id === 'projecao') { updateSim(); renderProjChart(); }
+  if (id === 'meses') renderMeses();
+  if (id === 'adicionar') renderMonthsList();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function initApp() {
+  renderDashboard();
+  renderTxnFilters();
+  renderMetas();
+  renderRecipe();
+  const d = new Date();
+  document.getElementById('f-mes').value = d.getFullYear()+'-'+(String(d.getMonth()+1).padStart(2,'0'));
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const m = getMonths()[0];
+  const cats = m.cats;
+  const total = Object.values(cats).reduce((a,b)=>a+b,0);
+
+  // Donut
+  const labels = Object.keys(CAT_META).map(k => CAT_META[k].label);
+  const vals = Object.keys(CAT_META).map(k => cats[k] || 0);
+  const colors = Object.keys(CAT_META).map(k => CAT_META[k].color);
+
+  if (charts.donut) charts.donut.destroy();
+  charts.donut = new Chart(document.getElementById('c-donut'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        label: ctx => ` ${ctx.label}: R$ ${ctx.parsed.toLocaleString('pt-BR')} (${((ctx.parsed/total)*100).toFixed(1)}%)`
+      }}}
+    }
+  });
+
+  // Donut legend
+  const leg = document.getElementById('donut-legend');
+  leg.innerHTML = Object.keys(CAT_META).map(k =>
+    `<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:${CAT_META[k].color};flex-shrink:0;"></span>${CAT_META[k].label} <strong style="color:var(--text);">R$${(cats[k]||0).toLocaleString('pt-BR')}</strong></span>`
+  ).join('');
+
+  // Evolution chart
+  const months = getMonths();
+  if (charts.evol) charts.evol.destroy();
+  charts.evol = new Chart(document.getElementById('c-evol'), {
+    type: 'bar',
+    data: {
+      labels: months.map(m => m.label),
+      datasets: [
+        { label: 'Renda', data: months.map(m=>m.renda), backgroundColor: 'rgba(62,207,142,0.7)', borderRadius: 4 },
+        { label: 'Gastos', data: months.map(m=>Object.values(m.cats).reduce((a,b)=>a+b,0)), backgroundColor: 'rgba(248,113,113,0.7)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: R$ ${ctx.parsed.y.toLocaleString('pt-BR')}` }}},
+      scales: {
+        x: { ticks: { color: '#9090a8', font: { size: 11 } }, grid: { display: false } },
+        y: { ticks: { color: '#9090a8', font: { size: 11 }, callback: v => 'R$'+Math.round(v/1000)+'k' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+
+  // Cat summary
+  const cs = document.getElementById('cat-summary');
+  cs.innerHTML = Object.keys(CAT_META).map(k => {
+    const v = cats[k] || 0;
+    const pct = ((v/total)*100).toFixed(1);
+    const w = ((v/total)*100).toFixed(0);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="min-width:24px;font-size:15px;">${CAT_META[k].icon}</span>
+      <span style="min-width:160px;font-size:13px;">${CAT_META[k].label}</span>
+      <div style="flex:1;background:var(--bg4);border-radius:3px;height:5px;"><div style="height:5px;border-radius:3px;background:${CAT_META[k].color};width:${w}%;"></div></div>
+      <span style="min-width:80px;text-align:right;font-weight:500;font-size:13px;">R$ ${v.toLocaleString('pt-BR')}</span>
+      <span style="min-width:40px;text-align:right;font-size:12px;color:var(--text2);">${pct}%</span>
+    </div>`;
+  }).join('') + `<div style="display:flex;justify-content:flex-end;padding:10px 0 2px;font-size:13px;font-weight:600;border-top:1px solid var(--border2);margin-top:4px;">Total: R$ ${total.toLocaleString('pt-BR')}</div>`;
+}
+
+// ─── MESES ────────────────────────────────────────────────────────────────────
+function renderMeses() {
+  const months = getMonths();
+  const tabs = document.getElementById('month-tabs');
+  tabs.innerHTML = months.map((m,i) =>
+    `<div class="month-tab ${i===0?'active':''}" onclick="selectMonth(${i},this)">${m.label}</div>`
+  ).join('');
+  showMonthDetail(0);
+}
+
+function selectMonth(i, el) {
+  document.querySelectorAll('.month-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  showMonthDetail(i);
+}
+
+function showMonthDetail(i) {
+  const m = getMonths()[i];
+  const total = Object.values(m.cats).reduce((a,b)=>a+b,0);
+  const saldo = m.renda - total;
+  const sClass = saldo >= 0 ? 'txt-green' : 'txt-red';
+
+  const detail = document.getElementById('month-detail');
+  detail.innerHTML = `
+    <div class="metrics-grid mb">
+      <div class="metric"><div class="metric-label">Renda</div><div class="metric-val txt-green">R$ ${m.renda.toLocaleString('pt-BR')}</div></div>
+      <div class="metric"><div class="metric-label">Total gasto</div><div class="metric-val txt-red">R$ ${total.toLocaleString('pt-BR')}</div></div>
+      <div class="metric"><div class="metric-label">Saldo</div><div class="metric-val ${sClass}">R$ ${saldo.toLocaleString('pt-BR')}</div></div>
+      <div class="metric"><div class="metric-label">Taxa de gasto</div><div class="metric-val">${((total/m.renda)*100).toFixed(0)}%</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">gastos por categoria</div>
+      ${Object.keys(CAT_META).map(k => {
+        const v = m.cats[k] || 0;
+        const pct = ((v/total)*100).toFixed(1);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:15px;">${CAT_META[k].icon}</span>
+          <span style="min-width:160px;font-size:13px;">${CAT_META[k].label}</span>
+          <div style="flex:1;background:var(--bg4);border-radius:3px;height:5px;"><div style="height:5px;border-radius:3px;background:${CAT_META[k].color};width:${pct}%;"></div></div>
+          <span style="min-width:80px;text-align:right;font-weight:500;">R$ ${v.toLocaleString('pt-BR')}</span>
+          <span style="min-width:40px;text-align:right;font-size:12px;color:var(--text2);">${pct}%</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ─── TRANSAÇÕES ───────────────────────────────────────────────────────────────
+let txnFilter = 'todos';
+
+function renderTxnFilters() {
+  const cats = ['todos', ...Object.keys(CAT_META)];
+  const labels = { todos: 'Todas', ...Object.fromEntries(Object.keys(CAT_META).map(k=>[k, CAT_META[k].label])) };
+  document.getElementById('txn-filters').innerHTML = cats.map(c =>
+    `<div class="filter-tab ${c==='todos'?'active':''}" onclick="setTxnFilter('${c}',this)">${labels[c]}</div>`
+  ).join('');
+}
+
+function setTxnFilter(cat, el) {
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTxn(cat);
+}
+
+function renderTxn(cat) {
+  txnFilter = cat || txnFilter;
+  const filtered = txnFilter === 'todos' ? TXN_DATA : TXN_DATA.filter(t=>t.cat===txnFilter);
+  const subtotal = filtered.reduce((a,b)=>a+b.val,0);
+  const body = document.getElementById('txn-body');
+  body.innerHTML = filtered.map(t => `
+    <tr>
+      <td style="color:var(--text2)">${t.date}</td>
+      <td>${t.desc}</td>
+      <td><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${CAT_META[t.cat].color};flex-shrink:0;"></span>${CAT_META[t.cat].label}</span></td>
+      <td><span class="badge ${t.card==='Santander'?'badge-blue':'badge-yellow'}">${t.card}</span></td>
+      <td style="text-align:right;font-weight:500;">R$ ${t.val.toFixed(2).replace('.',',')}</td>
+    </tr>`).join('');
+  document.getElementById('txn-total').textContent = `${filtered.length} transações · Total: R$ ${subtotal.toFixed(2).replace('.',',')}`;
+}
+
+// ─── PROJEÇÃO ─────────────────────────────────────────────────────────────────
+let projChart = null;
+
+function updateSim() {
+  const renda = +document.getElementById('sl-renda').value;
+  const delivery = +document.getElementById('sl-delivery').value;
+  const wh = +document.getElementById('sl-wh').value;
+  document.getElementById('sl-renda-val').textContent = 'R$ ' + renda.toLocaleString('pt-BR');
+  document.getElementById('sl-delivery-val').textContent = 'R$ ' + delivery.toLocaleString('pt-BR');
+  document.getElementById('sl-wh-val').textContent = wh > 0 ? 'R$ 480 (ativo)' : 'R$ 0 (cancelado)';
+
+  const baseGastos = 8978 - 555 - 480;
+  const gastos = baseGastos + delivery + wh;
+  const saldo = renda - gastos;
+  const reserva12 = Math.max(0, saldo * 12);
+
+  document.getElementById('sim-gastos').textContent = 'R$ ' + Math.round(gastos).toLocaleString('pt-BR');
+  const salEl = document.getElementById('sim-saldo');
+  salEl.textContent = (saldo >= 0 ? '+' : '') + 'R$ ' + Math.round(saldo).toLocaleString('pt-BR');
+  salEl.style.color = saldo >= 500 ? 'var(--green)' : saldo >= 0 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('sim-reserva').textContent = 'R$ ' + Math.round(reserva12).toLocaleString('pt-BR');
+
+  const status = saldo >= 1000 ? '🟢 Saudável' : saldo >= 0 ? '🟡 No limite' : '🔴 Déficit';
+  document.getElementById('sim-status').textContent = status;
+
+  renderProjChart(saldo);
+}
+
+function renderProjChart(saldoMensal) {
+  const s = saldoMensal ?? (+document.getElementById('sl-renda').value - (8978 - 555 - 480 + +document.getElementById('sl-delivery').value + +document.getElementById('sl-wh').value));
+  const labels = Array.from({length:12},(_,i)=>'M'+(i+1));
+  let acc = 0;
+  const data = labels.map(()=>{ acc += s; return Math.round(acc); });
+
+  if (projChart) projChart.destroy();
+  projChart = new Chart(document.getElementById('c-proj'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Reserva acumulada',
+        data,
+        borderColor: s >= 0 ? '#3ecf8e' : '#f87171',
+        backgroundColor: s >= 0 ? 'rgba(62,207,142,0.08)' : 'rgba(248,113,113,0.08)',
+        fill: true, tension: 0.3, pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' R$ '+ctx.parsed.y.toLocaleString('pt-BR') }}},
+      scales: {
+        x: { ticks: { color:'#9090a8', font:{size:11} }, grid:{display:false} },
+        y: { ticks: { color:'#9090a8', font:{size:11}, callback: v=>'R$'+Math.round(v/1000)+'k' }, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+}
+
+// ─── METAS ────────────────────────────────────────────────────────────────────
+function renderMetas() {
+  const curto = [
+    { label: 'Controlar delivery ≤ R$210/mês', prog: 38, badge: 'yellow' },
+    { label: 'Pagar Santander no total (evitar juros)', prog: 0, badge: 'red' },
+    { label: 'Cancelar Wellhub (ambos)', prog: 100, badge: 'green' },
+    { label: 'Não criar novo parcelamento noiva', prog: 60, badge: 'yellow' },
+  ];
+  const medio = [
+    { label: 'Reserva de R$3.000 (1 mês de custo)', prog: 0, badge: 'red' },
+    { label: 'Reduzir limite utilizado Santander para <60%', prog: 8, badge: 'red' },
+    { label: 'Terminar MacBook noiva (6 meses)', prog: 50, badge: 'yellow' },
+    { label: 'Economizar R$500/mês consistente', prog: 10, badge: 'red' },
+  ];
+
+  function renderGoals(arr) {
+    return arr.map(g => `
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+          <span>${g.label}</span>
+          <span class="badge badge-${g.badge}">${g.prog}%</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${g.prog}%;background:${g.badge==='green'?'var(--green)':g.badge==='yellow'?'var(--yellow)':'var(--red)'}"></div></div>
+      </div>`).join('');
+  }
+
+  document.getElementById('metas-curto').innerHTML = renderGoals(curto);
+  document.getElementById('metas-medio').innerHTML = renderGoals(medio);
+}
+
+function renderRecipe() {
+  const items = [
+    { acao: '✅ Cancela Wellhub (já feito)', economia: 480, acum: 480 },
+    { acao: '🛵 Delivery: sexta R$60 + sábado R$150', economia: 345, acum: 825 },
+    { acao: '📦 ML/Shopee: limitar a R$100/mês', economia: 284, acum: 1109 },
+    { acao: '💑 Noiva: após MacBook quitado (+6 meses)', economia: 542, acum: 1651 },
+  ];
+  document.getElementById('recipe-items').innerHTML = items.map(it => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;">
+      <span>${it.acao}</span>
+      <div style="display:flex;gap:16px;text-align:right;">
+        <div><div style="font-size:10px;color:var(--text2);">ECONOMIA</div><div style="color:var(--green);font-weight:600;">+R$ ${it.economia}</div></div>
+        <div><div style="font-size:10px;color:var(--text2);">ACUMULADO</div><div style="font-weight:600;">R$ ${it.acum}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+// ─── ADD MONTH ────────────────────────────────────────────────────────────────
+function addMonth() {
+  const mes = document.getElementById('f-mes').value;
+  const renda = +document.getElementById('f-renda').value;
+  if (!mes || !renda) { showFormMsg('Preencha ao menos mês e renda.', false); return; }
+
+  const cats = {};
+  ['trab','saude','alim','deliv','mora','noiva','assin','outros'].forEach((id,i) => {
+    const keys = ['trabalho','saude','alimentacao','delivery','moradia','noiva','assinatura','outros'];
+    cats[keys[i]] = +(document.getElementById('f-'+id).value) || 0;
+  });
+
+  const d = new Date(mes+'-01');
+  const label = d.toLocaleDateString('pt-BR', { month:'short', year:'numeric' }).replace(/\./,'').replace(' de ',' ');
+  const months = getMonths();
+  months.unshift({ id: mes, label, month: mes, renda, cats });
+  saveMonths(months);
+  showFormMsg('Mês salvo com sucesso! ✓', true);
+  clearForm();
+  renderMonthsList();
+}
+
+function clearForm() {
+  ['f-renda','f-trab','f-saude','f-alim','f-deliv','f-mora','f-noiva','f-assin','f-outros'].forEach(id => { document.getElementById(id).value = ''; });
+}
+
+function showFormMsg(msg, ok) {
+  const el = document.getElementById('form-msg');
+  el.style.display = 'block';
+  el.style.color = ok ? 'var(--green)' : 'var(--red)';
+  el.textContent = msg;
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function renderMonthsList() {
+  const months = getMonths();
+  document.getElementById('months-list').innerHTML = months.map((m,i) => {
+    const total = Object.values(m.cats).reduce((a,b)=>a+b,0);
+    const saldo = m.renda - total;
+    return `<tr>
+      <td>${m.label}</td>
+      <td class="txt-green">R$ ${m.renda.toLocaleString('pt-BR')}</td>
+      <td class="txt-red">R$ ${total.toLocaleString('pt-BR')}</td>
+      <td class="${saldo>=0?'txt-green':'txt-red'}">${saldo>=0?'+':''}R$ ${saldo.toLocaleString('pt-BR')}</td>
+      <td><button onclick="deleteMonth(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;" title="Remover">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteMonth(i) {
+  if (!confirm('Remover este mês?')) return;
+  const months = getMonths();
+  months.splice(i, 1);
+  saveMonths(months);
+  renderMonthsList();
+}
+</script>
+</body>
+</html>
