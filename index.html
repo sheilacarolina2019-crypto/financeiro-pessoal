@@ -160,13 +160,7 @@ select.fi option{background:var(--bg3);}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
-/* RESPONSIVE */
-@media(max-width:900px){
-  .sidebar{display:none;}
-  .main{margin-left:0;padding:1rem;}
-  .metrics-grid{grid-template-columns:1fr 1fr;}
-  .grid-2,.grid-3{grid-template-columns:1fr;}
-}
+/* RESPONSIVE — handled by hamburger block above */
 
 /* COLORS */
 .txt-green{color:var(--green);}
@@ -185,6 +179,69 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:1rem 0;}
 .type-despesa{background:var(--red-dim);color:var(--red);}
 .type-pix{background:var(--blue-dim);color:var(--blue);}
 .type-fixo{background:var(--purple-dim);color:var(--purple);}
+
+/* HAMBURGER */
+.hamburger-btn{display:none;position:fixed;top:.9rem;left:.9rem;z-index:50;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;cursor:pointer;font-size:18px;line-height:1;color:var(--text);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9;}
+.sidebar-overlay.open{display:block;}
+@media(max-width:900px){
+  .hamburger-btn{display:flex;align-items:center;}
+  .sidebar{display:flex;transform:translateX(-240px);transition:transform .25s ease;z-index:20;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:1rem;padding-top:3.5rem;}
+  .metrics-grid{grid-template-columns:1fr 1fr;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+}
+
+/* SALDO WIDGET */
+.saldo-widget{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:var(--radius);padding:12px 16px;margin-bottom:1rem;border:1px solid var(--border);}
+.saldo-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.saldo-val{font-size:20px;font-weight:600;line-height:1;}
+
+/* MEMBER CARD */
+.member-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid var(--border);}
+.member-avatar{width:40px;height:40px;border-radius:50%;background:var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.member-info{flex:1;}
+.member-name{font-weight:500;font-size:13px;}
+.member-role{font-size:11px;color:var(--text2);}
+
+/* COMPARATIVO */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.comp-select{display:flex;gap:10px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;}
+.comp-col{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;}
+.comp-col-title{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:10px;font-weight:600;}
+.comp-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.comp-row:last-child{border-bottom:none;}
+.comp-delta{font-size:11px;margin-left:5px;}
+@media(max-width:700px){.comp-grid{grid-template-columns:1fr;}}
+
+/* RELATÓRIO */
+.report-section{margin-bottom:1.5rem;}
+.report-section h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.report-item{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid var(--border);}
+.report-item:last-child{border-bottom:none;}
+.report-tip{background:var(--blue-dim);border-left:3px solid var(--blue);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#93c5fd;margin-bottom:6px;}
+.report-warning{background:var(--yellow-dim);border-left:3px solid var(--yellow);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#fcd34d;margin-bottom:6px;}
+.report-ok{background:var(--green-dim);border-left:3px solid var(--green);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#6ee7b7;margin-bottom:6px;}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;cursor:pointer;padding:4px 0;margin-bottom:10px;background:none;border:none;}
+.back-btn:hover{color:var(--text);}
+
+/* PRINT */
+@media print{
+  .sidebar,.hamburger-btn,.sidebar-overlay,.btn,.filter-tabs,.page-header button,
+  .modal-overlay,.notif,.nav-item,.logout-btn,.month-tabs{display:none!important;}
+  .main{margin-left:0!important;padding:0!important;}
+  .page{display:block!important;}
+  body{background:#fff!important;color:#000!important;}
+  .card,.metric{background:#fff!important;border:1px solid #ccc!important;}
+  .metric-val,.fw{color:#000!important;}
+  .txt-green{color:#16a34a!important;}
+  .txt-red{color:#dc2626!important;}
+  .txt-yellow{color:#d97706!important;}
+  .txt-muted,.txt-blue{color:#444!important;}
+}
 </style>
 </head>
 <body>
@@ -203,27 +260,34 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:1rem 0;}
 </div>
 
 <!-- APP -->
+<button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
 <div id="app">
   <nav class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-mark">💰</div>
-      <div class="sidebar-name">Daniel Gomes</div>
-      <div class="sidebar-role">Personal Trainer · RJ</div>
+      <div class="sidebar-name" id="sidebar-name">Daniel Gomes</div>
+      <div class="sidebar-role" id="sidebar-role">Personal Trainer · RJ</div>
     </div>
     <div class="nav-section">Visão geral</div>
-    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
-    <div class="nav-item" onclick="showPage('lancamentos',this)"><span class="nav-icon">📝</span> Lançamentos <span id="badge-lanc" style="margin-left:auto;"></span></div>
+    <div class="nav-item active" onclick="showPage('dashboard',this);closeSidebar()"><span class="nav-icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('lancamentos',this);closeSidebar()"><span class="nav-icon">📝</span> Lançamentos <span id="badge-lanc" style="margin-left:auto;"></span></div>
     <div class="nav-section">Controle</div>
-    <div class="nav-item" onclick="showPage('fixos',this)"><span class="nav-icon">📌</span> Gastos fixos</div>
-    <div class="nav-item" onclick="showPage('transacoes',this)"><span class="nav-icon">🧾</span> Fatura detalhada</div>
-    <div class="nav-item" onclick="showPage('meses',this)"><span class="nav-icon">📅</span> Por mês</div>
+    <div class="nav-item" onclick="showPage('fixos',this);closeSidebar()"><span class="nav-icon">📌</span> Gastos fixos</div>
+    <div class="nav-item" onclick="showPage('transacoes',this);closeSidebar()"><span class="nav-icon">🧾</span> Fatura detalhada</div>
+    <div class="nav-item" onclick="showPage('meses',this);closeSidebar()"><span class="nav-icon">📅</span> Por mês</div>
+    <div class="nav-item" onclick="showPage('comparativo',this);closeSidebar()"><span class="nav-icon">⚖️</span> Comparativo</div>
     <div class="nav-section">Planejamento</div>
-    <div class="nav-item" onclick="showPage('alertas',this)"><span class="nav-icon">🔔</span> Alertas <span id="badge-alerts" style="margin-left:auto;"></span></div>
-    <div class="nav-item" onclick="showPage('projecao',this)"><span class="nav-icon">📈</span> Projeção</div>
-    <div class="nav-item" onclick="showPage('metas',this)"><span class="nav-icon">🎯</span> Metas</div>
+    <div class="nav-item" onclick="showPage('alertas',this);closeSidebar()"><span class="nav-icon">🔔</span> Alertas <span id="badge-alerts" style="margin-left:auto;"></span></div>
+    <div class="nav-item" onclick="showPage('projecao',this);closeSidebar()"><span class="nav-icon">📈</span> Projeção</div>
+    <div class="nav-item" onclick="showPage('metas',this);closeSidebar()"><span class="nav-icon">🎯</span> Metas</div>
+    <div class="nav-item" onclick="showPage('tendencia',this);closeSidebar()"><span class="nav-icon">📉</span> Tendências</div>
+    <div class="nav-section">Relatórios</div>
+    <div class="nav-item" onclick="showPage('relatorio',this);closeSidebar()"><span class="nav-icon">📄</span> Relatório mensal</div>
     <div class="sidebar-bottom">
       <div class="nav-section">Dados</div>
-      <div class="nav-item" onclick="showPage('adicionar',this)"><span class="nav-icon">➕</span> Novo mês</div>
+      <div class="nav-item" onclick="showPage('membros',this);closeSidebar()"><span class="nav-icon">👥</span> Membros / Contas</div>
+      <div class="nav-item" onclick="showPage('adicionar',this);closeSidebar()"><span class="nav-icon">➕</span> Novo mês</div>
       <button class="logout-btn" onclick="doLogout()"><span class="nav-icon">🚪</span> Sair</button>
     </div>
   </nav>
@@ -236,6 +300,7 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:1rem 0;}
         <div><div class="page-title">Dashboard</div><div class="page-sub" id="dash-sub">Carregando...</div></div>
         <button class="btn btn-primary" onclick="showPage('lancamentos',document.querySelector('[onclick*=lancamentos]'))">+ Lançamento</button>
       </div>
+      <div id="dash-saldo"></div>
       <div class="metrics-grid mb" id="dash-metrics"></div>
       <div class="grid-2 mb">
         <div class="card"><div class="card-title">gastos por categoria</div><div style="position:relative;height:220px;"><canvas id="c-donut" role="img" aria-label="Gastos por categoria"></canvas></div><div id="donut-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;color:var(--text2);"></div></div>
@@ -250,7 +315,10 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:1rem 0;}
     <div id="page-lancamentos" class="page">
       <div class="page-header">
         <div><div class="page-title">Lançamentos</div><div class="page-sub">Receitas, despesas e PIX — diários, semanais ou mensais</div></div>
-        <button class="btn btn-primary" onclick="openLancModal()">+ Novo lançamento</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportLancCSV()">⬇️ CSV</button>
+          <button class="btn btn-primary" onclick="openLancModal()">+ Novo lançamento</button>
+        </div>
       </div>
       <div class="filter-tabs" id="lanc-filters"></div>
       <div class="card mb">
@@ -299,9 +367,51 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:1rem 0;}
 
     <!-- MESES -->
     <div id="page-meses" class="page">
-      <div class="page-header"><div><div class="page-title">Histórico por mês</div><div class="page-sub">Evolução mês a mês</div></div></div>
+      <div class="page-header">
+        <div><div class="page-title">Histórico por mês</div><div class="page-sub">Evolução mês a mês</div></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇️ CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ PDF</button>
+        </div>
+      </div>
       <div class="month-tabs" id="month-tabs"></div>
       <div id="month-detail"></div>
+    </div>
+
+    <!-- COMPARATIVO -->
+    <div id="page-comparativo" class="page">
+      <div class="page-header"><div><div class="page-title">Comparativo de meses</div><div class="page-sub">Compare dois meses lado a lado</div></div></div>
+      <div id="comp-controls"></div>
+      <div id="comp-detail"></div>
+    </div>
+
+    <!-- TENDÊNCIAS -->
+    <div id="page-tendencia" class="page">
+      <div class="page-header"><div><div class="page-title">Tendências por categoria</div><div class="page-sub">Evolução de cada categoria ao longo dos meses</div></div></div>
+      <div id="tend-content"></div>
+    </div>
+
+    <!-- RELATÓRIO -->
+    <div id="page-relatorio" class="page">
+      <div class="page-header"><div><div class="page-title">Relatório mensal</div><div class="page-sub">Resumo automático do mês atual</div></div></div>
+      <div class="card"><div id="rel-content"></div></div>
+    </div>
+
+    <!-- MEMBROS / CONTAS -->
+    <div id="page-membros" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Membros &amp; Contas</div><div class="page-sub">Perfil, contas vinculadas e visão combinada</div></div>
+        <button class="btn btn-primary" onclick="openMembroModal()">+ Vincular membro</button>
+      </div>
+      <div class="card mb">
+        <div class="card-title">meu perfil</div>
+        <div id="profile-section"></div>
+      </div>
+      <div class="card mb">
+        <div class="card-title">membros vinculados</div>
+        <div id="members-list"></div>
+      </div>
+      <div class="card" id="combined-section"></div>
     </div>
 
     <!-- ALERTAS -->
@@ -426,8 +536,63 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:1rem 0;}
   <div class="modal">
     <div class="modal-title">Nova meta <button class="modal-close" onclick="closeMetaModal()">×</button></div>
     <div class="form-group" style="margin-bottom:10px;"><label>Descrição</label><input class="fi" id="mm-desc" type="text" placeholder="Ex: Reserva de 3 meses de custo"></div>
-    <div class="form-row"><div class="form-group"><label>Prazo</label><select class="fi" id="mm-prazo"><option value="curto">Curto (1-3 meses)</option><option value="medio">Médio (6-12 meses)</option><option value="longo">Longo (+1 ano)</option></select></div><div class="form-group"><label>Progresso (%)</label><input class="fi" id="mm-prog" type="number" placeholder="0" min="0" max="100"></div></div>
+    <div class="form-row"><div class="form-group"><label>Prazo</label><select class="fi" id="mm-prazo"><option value="curto">Curto (1-3 meses)</option><option value="medio">Médio (6-12 meses)</option><option value="longo">Longo (+1 ano)</option></select></div><div class="form-group"><label>Progresso manual (%)</label><input class="fi" id="mm-prog" type="number" placeholder="0" min="0" max="100"></div></div>
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Meta de valor (opcional)</div>
+    <div class="form-row">
+      <div class="form-group"><label>Valor alvo (R$)</label><input class="fi" id="mm-alvo" type="number" placeholder="Ex: 3000" oninput="calcMetaProg()"></div>
+      <div class="form-group"><label>Valor atual (R$)</label><input class="fi" id="mm-atual" type="number" placeholder="0" oninput="calcMetaProg()"></div>
+    </div>
     <div class="form-actions"><button class="btn btn-primary" onclick="saveMeta()">Salvar</button><button class="btn btn-ghost" onclick="closeMetaModal()">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL AÇÃO -->
+<div id="modal-acao" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeAcaoModal()">
+  <div class="modal">
+    <div class="modal-title">Editar ação <button class="modal-close" onclick="closeAcaoModal()">×</button></div>
+    <input type="hidden" id="maa-id">
+    <div class="form-group" style="margin-bottom:10px;"><label>Descrição da ação</label><input class="fi" id="maa-acao" type="text" placeholder="Ex: Cancelar Wellhub"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Impacto / mês (R$)</label><input class="fi" id="maa-impacto" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Dificuldade</label><select class="fi" id="maa-dif"><option>Fácil</option><option>Médio</option><option>Difícil</option><option>Urgente</option></select></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;"><label>Status</label><select class="fi" id="maa-status"><option>Feito</option><option>Em progresso</option><option>Pendente</option><option>Conversar</option></select></div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="saveAcao()">Salvar</button><button class="btn btn-ghost" onclick="closeAcaoModal()">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL SALDO -->
+<div id="modal-saldo" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSaldoModal()">
+  <div class="modal">
+    <div class="modal-title">Saldo em conta <button class="modal-close" onclick="closeSaldoModal()">×</button></div>
+    <div class="form-group" style="margin-bottom:12px;"><label>Saldo atual (R$)</label><input class="fi" id="ms-val" type="number" placeholder="Ex: 1500" step="0.01"></div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="saveSaldo()">Salvar</button><button class="btn btn-ghost" onclick="closeSaldoModal()">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL MEMBRO -->
+<div id="modal-membro" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeMembroModal()">
+  <div class="modal">
+    <div class="modal-title">Membro / Conta <button class="modal-close" onclick="closeMembroModal()">×</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Nome</label><input class="fi" id="mmb-name" type="text" placeholder="Ex: Carolina"></div>
+      <div class="form-group"><label>Ícone</label><input class="fi" id="mmb-avatar" type="text" placeholder="👤" maxlength="2"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Papel / relação</label><input class="fi" id="mmb-role" type="text" placeholder="Ex: Noiva, Sócio..."></div>
+      <div class="form-group"><label>Renda mensal (R$)</label><input class="fi" id="mmb-renda" type="number" placeholder="0"></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="saveMembro()">Salvar</button><button class="btn btn-ghost" onclick="closeMembroModal()">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- MODAL PERFIL -->
+<div id="modal-profile" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeProfileModal()">
+  <div class="modal">
+    <div class="modal-title">Editar perfil <button class="modal-close" onclick="closeProfileModal()">×</button></div>
+    <div class="form-group" style="margin-bottom:10px;"><label>Nome</label><input class="fi" id="mp-name" type="text" placeholder="Seu nome"></div>
+    <div class="form-group" style="margin-bottom:12px;"><label>Cargo / descrição</label><input class="fi" id="mp-role" type="text" placeholder="Ex: Personal Trainer · RJ"></div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="saveProfile()">Salvar</button><button class="btn btn-ghost" onclick="closeProfileModal()">Cancelar</button></div>
   </div>
 </div>
 
@@ -460,8 +625,13 @@ function doLogout() {
 // ═══════════════════════════════════════════════════════
 const SK = {
   months:'fin_months', lanc:'fin_lanc', fixos:'fin_fixos',
-  alerts:'fin_alerts', metas:'fin_metas', acoes:'fin_acoes'
+  alerts:'fin_alerts', metas:'fin_metas', acoes:'fin_acoes',
+  saldo:'fin_saldo', members:'fin_members', profile:'fin_profile'
 };
+
+const DEFAULT_SALDO = {valor:0, updated:''};
+const DEFAULT_MEMBERS = [];
+const DEFAULT_PROFILE = {name:'Daniel Gomes', role:'Personal Trainer · RJ'};
 
 function load(key, def) {
   try { const s=localStorage.getItem(key); return s?JSON.parse(s):def; } catch(e) { return def; }
@@ -614,9 +784,13 @@ function showPage(id, el) {
     fixos: renderFixos,
     transacoes: ()=>renderTxn('todos'),
     meses: renderMeses,
+    comparativo: renderComparativo,
     alertas: renderAlertas,
     projecao: ()=>{ updateSim(); renderProjChart(); renderCortes(); },
     metas: renderMetas,
+    tendencia: renderTendencia,
+    relatorio: renderRelatorio,
+    membros: renderMembros,
     adicionar: renderMonthsList,
   };
   if(renders[id]) renders[id]();
@@ -640,6 +814,9 @@ function fmtDate(d) { if(!d) return '—'; const p=d.split('-'); return p[2]+'/'
 function initApp() {
   const today = new Date();
   document.getElementById('f-mes').value = today.getFullYear()+'-'+(String(today.getMonth()+1).padStart(2,'0'));
+  const p=load(SK.profile,DEFAULT_PROFILE);
+  document.getElementById('sidebar-name').textContent=p.name;
+  document.getElementById('sidebar-role').textContent=p.role;
   renderTxnFilters();
   renderDashboard();
   updateAlertBadge();
@@ -658,6 +835,7 @@ function renderDashboard() {
   const saldo = m.renda - total;
 
   document.getElementById('dash-sub').textContent = m.label+' · Renda: '+fmt(m.renda);
+  renderSaldoWidget();
 
   document.getElementById('dash-metrics').innerHTML = `
     <div class="metric"><div class="metric-label">Renda</div><div class="metric-val txt-green">${fmt(m.renda)}</div><div class="metric-change">Mês registrado</div></div>
@@ -1082,9 +1260,10 @@ function renderAlertas() {
   // System notifications
   const sysNotifs=[];
   const fixos=load(SK.fixos,DEFAULT_FIXOS);
-  fixos.filter(f=>f.subtipo==='parcela'&&f.rest<=2).forEach(f=>
-    sysNotifs.push({type:'yellow',msg:`Parcela terminando em breve: <strong>${f.desc}</strong> — ${f.rest}x de ${fmt(f.val)} restantes`})
-  );
+  fixos.filter(f=>f.subtipo==='parcela'&&f.rest<=3).forEach(f=>{
+    const isLast=f.rest<=1;
+    sysNotifs.push({type:isLast?'red':'yellow',msg:`${isLast?'🎉 Última parcela':'⏰ Parcela terminando'}: <strong>${f.desc}</strong> — ${f.rest}x de ${fmt(f.val)} → libera ${fmt(f.val)}/mês em breve`});
+  });
   if(months[0]?.cats) {
     const d=months[0].cats.delivery||0;
     if(d>400) sysNotifs.push({type:'red',msg:`Delivery em <strong>${fmt(d)}</strong> — meta é R$ 210`});
@@ -1231,18 +1410,21 @@ function renderMetas(){
   const acoes=load(SK.acoes,DEFAULT_ACOES);
 
   function metaHtml(arr){
-    return arr.map(g=>`
+    return arr.map(g=>{
+      const prog=g.valorAlvo>0?Math.min(100,Math.round(((g.valorAtual||0)/g.valorAlvo)*100)):g.prog;
+      return `
       <div style="margin-bottom:12px;" id="meta-${g.id}">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;align-items:center;">
           <span>${g.desc}</span>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span class="badge ${g.prog>=100?'badge-green':g.prog>=50?'badge-yellow':'badge-red'}">${g.prog}%</span>
+            ${g.valorAlvo>0?`<span style="font-size:11px;color:var(--text2);">${fmt(g.valorAtual||0)} / ${fmt(g.valorAlvo)}</span>`:''}
+            <span class="badge ${prog>=100?'badge-green':prog>=50?'badge-yellow':'badge-red'}">${prog}%</span>
             <button class="btn btn-ghost btn-sm btn-icon" onclick="editMetaInline('${g.id}')" title="Editar">✏️</button>
             <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMeta('${g.id}')" title="Remover">🗑️</button>
           </div>
         </div>
-        <div class="prog-wrap"><div class="prog-fill" style="width:${g.prog}%;background:${g.prog>=100?'var(--green)':g.prog>=50?'var(--yellow)':'var(--red)'}"></div></div>
-      </div>`).join('');
+        <div class="prog-wrap"><div class="prog-fill" style="width:${prog}%;background:${prog>=100?'var(--green)':prog>=50?'var(--yellow)':'var(--red)'}"></div></div>
+      </div>`}).join('');
   }
   document.getElementById('metas-curto').innerHTML=metaHtml(metas.curto||[]);
   document.getElementById('metas-medio').innerHTML=metaHtml(metas.medio||[]);
@@ -1278,6 +1460,8 @@ function openMetaModal(prefill){
   document.getElementById('mm-desc').value=prefill?.desc||'';
   document.getElementById('mm-prazo').value=prefill?.prazo||'curto';
   document.getElementById('mm-prog').value=prefill?.prog||0;
+  document.getElementById('mm-alvo').value=prefill?.valorAlvo||'';
+  document.getElementById('mm-atual').value=prefill?.valorAtual||'';
   document.getElementById('modal-meta').dataset.editId=prefill?.id||'';
   document.getElementById('modal-meta').style.display='flex';
 }
@@ -1289,7 +1473,10 @@ function saveMeta(){
   const metas=load(SK.metas,DEFAULT_METAS);
   const editId=document.getElementById('modal-meta').dataset.editId;
   const prazo=document.getElementById('mm-prazo').value;
-  const obj={id:editId||uid(),desc,prog:+document.getElementById('mm-prog').value||0,ativa:true,prazo};
+  const valorAlvo=parseFloat(document.getElementById('mm-alvo').value)||0;
+  const valorAtual=parseFloat(document.getElementById('mm-atual').value)||0;
+  const prog=valorAlvo>0?Math.min(100,Math.round((valorAtual/valorAlvo)*100)):+document.getElementById('mm-prog').value||0;
+  const obj={id:editId||uid(),desc,prog,valorAlvo,valorAtual,ativa:true,prazo};
   const key=prazo==='medio'?'medio':'curto';
   if(editId){
     ['curto','medio'].forEach(k=>{const i=metas[k].findIndex(m=>m.id===editId);if(i>=0)metas[k][i]=obj;});
@@ -1323,12 +1510,12 @@ function editAcao(id){
   const acoes=load(SK.acoes,DEFAULT_ACOES);
   const a=acoes.find(x=>x.id===id);
   if(!a) return;
-  const novoStatus=prompt('Novo status (Feito / Em progresso / Pendente / Conversar):',a.status);
-  if(novoStatus===null) return;
-  a.status=novoStatus.trim();
-  save(SK.acoes,acoes);
-  renderMetas();
-  notify('Ação atualizada!');
+  document.getElementById('maa-id').value=id;
+  document.getElementById('maa-acao').value=a.acao;
+  document.getElementById('maa-impacto').value=a.impacto;
+  document.getElementById('maa-dif').value=a.dif;
+  document.getElementById('maa-status').value=a.status;
+  document.getElementById('modal-acao').style.display='flex';
 }
 
 function deleteAcao(id){
@@ -1397,6 +1584,357 @@ function deleteMonth(i){
   save(SK.months,months);
   renderMonthsList();
   notify('Mês removido.');
+}
+
+// ═══════════════════════════════════════════════════════
+// MOBILE
+// ═══════════════════════════════════════════════════════
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.querySelector('.sidebar-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════
+// SALDO EM CONTA
+// ═══════════════════════════════════════════════════════
+function renderSaldoWidget(){
+  const s=load(SK.saldo,DEFAULT_SALDO);
+  const months=load(SK.months,DEFAULT_MONTHS);
+  const total=Object.values(months[0]?.cats||{}).reduce((a,b)=>a+b,0);
+  const alerta=s.valor>0&&s.valor<total*0.5;
+  document.getElementById('dash-saldo').innerHTML=`
+    <div class="saldo-widget">
+      <div>
+        <div class="saldo-label">Saldo em conta</div>
+        <div class="saldo-val ${s.valor>=0?'txt-green':'txt-red'}">${fmt(s.valor)}</div>
+        ${s.updated?`<div style="font-size:11px;color:var(--text2);margin-top:2px;">Atualizado: ${s.updated}</div>`:''}
+        ${alerta?`<div style="font-size:11px;color:var(--yellow);margin-top:2px;">⚠️ Saldo baixo para os gastos do mês</div>`:''}
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openSaldoModal()">✏️ Atualizar</button>
+    </div>`;
+}
+function openSaldoModal(){
+  document.getElementById('ms-val').value=load(SK.saldo,DEFAULT_SALDO).valor||'';
+  document.getElementById('modal-saldo').style.display='flex';
+}
+function closeSaldoModal(){document.getElementById('modal-saldo').style.display='none';}
+function saveSaldo(){
+  const val=parseFloat(document.getElementById('ms-val').value)||0;
+  save(SK.saldo,{valor:val,updated:new Date().toLocaleDateString('pt-BR')});
+  closeSaldoModal();
+  renderSaldoWidget();
+  notify('Saldo atualizado!');
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORTAR CSV
+// ═══════════════════════════════════════════════════════
+function exportCSV(monthIdx){
+  const months=load(SK.months,DEFAULT_MONTHS);
+  const m=months[monthIdx!==undefined?monthIdx:0];
+  if(!m){notify('Nenhum mês disponível.','error');return;}
+  const rows=[['Categoria','Valor']];
+  Object.keys(m.cats).forEach(k=>rows.push([CAT_META[k]?.label||k,m.cats[k]]));
+  rows.push(['TOTAL',Object.values(m.cats).reduce((a,b)=>a+b,0)]);
+  rows.push(['RENDA',m.renda]);
+  rows.push(['SALDO',m.renda-Object.values(m.cats).reduce((a,b)=>a+b,0)]);
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`financeiro_${m.month||'mes'}.csv`;
+  a.click();
+  notify('CSV exportado!');
+}
+function exportLancCSV(){
+  const lancs=load(SK.lanc,DEFAULT_LANC);
+  const rows=[['Data','Descrição','Tipo','Categoria','Valor','Recorrência','Cartão','Observação']];
+  lancs.forEach(l=>rows.push([l.data,l.desc,l.tipo,CAT_META[l.cat]?.label||l.cat,l.val,l.rec,l.cartao,l.obs||'']));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='lancamentos.csv';
+  a.click();
+  notify('CSV exportado!');
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPARATIVO
+// ═══════════════════════════════════════════════════════
+function renderComparativo(){
+  const months=load(SK.months,DEFAULT_MONTHS);
+  if(months.length<1){document.getElementById('comp-controls').innerHTML='<div class="alert alert-blue">Adicione meses para comparar.</div>';return;}
+  const opts=months.map((m,i)=>`<option value="${i}">${m.label}</option>`).join('');
+  const selA=document.getElementById('comp-a')?.value||'0';
+  const selB=document.getElementById('comp-b')?.value||(months.length>1?'1':'0');
+  document.getElementById('comp-controls').innerHTML=`
+    <div class="comp-select">
+      <span style="font-size:13px;color:var(--text2);">Comparar:</span>
+      <select class="fi" id="comp-a" onchange="renderComparativo()" style="width:auto;">${months.map((m,i)=>`<option value="${i}" ${i==selA?'selected':''}>${m.label}</option>`).join('')}</select>
+      <span style="color:var(--text2);">vs</span>
+      <select class="fi" id="comp-b" onchange="renderComparativo()" style="width:auto;">${months.map((m,i)=>`<option value="${i}" ${i==selB?'selected':''}>${m.label}</option>`).join('')}</select>
+    </div>`;
+  const idxA=parseInt(document.getElementById('comp-a').value);
+  const idxB=parseInt(document.getElementById('comp-b').value);
+  const mA=months[idxA],mB=months[idxB]||months[0];
+  const totalA=Object.values(mA.cats).reduce((a,b)=>a+b,0);
+  const totalB=Object.values(mB.cats).reduce((a,b)=>a+b,0);
+  const saldoA=mA.renda-totalA,saldoB=mB.renda-totalB;
+  const dd=(a,b)=>{const d=a-b;const c=d>0?'txt-green':d<0?'txt-red':'txt-muted';return d!==0?` <span class="comp-delta ${c}">${d>0?'+':''}${fmt(d)}</span>`:''};
+  const ks=Object.keys(CAT_META).filter(k=>k!=='renda');
+  document.getElementById('comp-detail').innerHTML=`
+    <div class="comp-grid">
+      <div class="comp-col">
+        <div class="comp-col-title">${mA.label}</div>
+        <div class="comp-row"><span>Renda</span><span class="txt-green fw">${fmt(mA.renda)}</span></div>
+        <div class="comp-row"><span>Total gastos</span><span class="txt-red fw">${fmt(totalA)}</span></div>
+        <div class="comp-row"><span>Saldo</span><span class="${saldoA>=0?'txt-green':'txt-red'} fw">${saldoA>=0?'+':''}${fmt(saldoA)}</span></div>
+        ${ks.map(k=>`<div class="comp-row"><span>${CAT_META[k].icon} ${CAT_META[k].label}</span><span>${fmt(mA.cats[k]||0)}</span></div>`).join('')}
+      </div>
+      <div class="comp-col">
+        <div class="comp-col-title">${mB.label}</div>
+        <div class="comp-row"><span>Renda</span><span class="txt-green fw">${fmt(mB.renda)}${dd(mB.renda,mA.renda)}</span></div>
+        <div class="comp-row"><span>Total gastos</span><span class="txt-red fw">${fmt(totalB)}${dd(totalA,totalB)}</span></div>
+        <div class="comp-row"><span>Saldo</span><span class="${saldoB>=0?'txt-green':'txt-red'} fw">${saldoB>=0?'+':''}${fmt(saldoB)}${dd(saldoB,saldoA)}</span></div>
+        ${ks.map(k=>`<div class="comp-row"><span>${CAT_META[k].icon} ${CAT_META[k].label}</span><span>${fmt(mB.cats[k]||0)}${dd(mA.cats[k]||0,mB.cats[k]||0)}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">comparação por categoria</div>
+      <div style="position:relative;height:280px;"><canvas id="c-comp" role="img" aria-label="Comparativo"></canvas></div>
+    </div>`;
+  if(charts.comp)charts.comp.destroy();
+  charts.comp=new Chart(document.getElementById('c-comp'),{
+    type:'bar',
+    data:{labels:ks.map(k=>CAT_META[k].label),datasets:[
+      {label:mA.label,data:ks.map(k=>mA.cats[k]||0),backgroundColor:'rgba(96,165,250,0.7)',borderRadius:4},
+      {label:mB.label,data:ks.map(k=>mB.cats[k]||0),backgroundColor:'rgba(167,139,250,0.7)',borderRadius:4},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{ticks:{color:'#9090a8',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#9090a8',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// TENDÊNCIAS
+// ═══════════════════════════════════════════════════════
+function renderTendencia(){
+  const months=load(SK.months,DEFAULT_MONTHS);
+  const sorted=[...months].sort((a,b)=>a.month.localeCompare(b.month));
+  const labels=sorted.map(m=>m.label);
+  const ks=Object.keys(CAT_META).filter(k=>k!=='renda');
+  const datasets=ks.map(k=>({
+    label:CAT_META[k].label,data:sorted.map(m=>m.cats[k]||0),
+    borderColor:CAT_META[k].color,backgroundColor:'transparent',tension:0.3,pointRadius:4,borderWidth:2
+  }));
+  datasets.unshift({
+    label:'Renda',data:sorted.map(m=>m.renda),
+    borderColor:'#3ecf8e',backgroundColor:'rgba(62,207,142,0.06)',fill:true,tension:0.3,pointRadius:4,borderWidth:2.5
+  });
+  document.getElementById('tend-content').innerHTML=`
+    <div class="card mb">
+      <div class="card-title">evolução por categoria — todos os meses</div>
+      <div style="position:relative;height:320px;"><canvas id="c-tend" role="img" aria-label="Tendências"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">tabela de valores</div>
+      <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr><th>Categoria</th>${sorted.map(m=>`<th style="text-align:right">${m.label}</th>`).join('')}</tr></thead>
+        <tbody>
+        ${ks.map(k=>`<tr><td>${CAT_META[k].icon} ${CAT_META[k].label}</td>${sorted.map(m=>`<td style="text-align:right">${fmt(m.cats[k]||0)}</td>`).join('')}</tr>`).join('')}
+        <tr style="font-weight:600;border-top:1px solid var(--border2);">
+          <td>💰 Renda</td>${sorted.map(m=>`<td style="text-align:right;color:var(--green);">${fmt(m.renda)}</td>`).join('')}
+        </tr></tbody>
+      </table></div>
+    </div>`;
+  if(charts.tend)charts.tend.destroy();
+  charts.tend=new Chart(document.getElementById('c-tend'),{
+    type:'line',data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:'#9090a8',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{ticks:{color:'#9090a8',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#9090a8',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// RELATÓRIO MENSAL
+// ═══════════════════════════════════════════════════════
+function renderRelatorio(){
+  const months=load(SK.months,DEFAULT_MONTHS);
+  const lancs=load(SK.lanc,DEFAULT_LANC);
+  const fixos=load(SK.fixos,DEFAULT_FIXOS);
+  const m=months[0];
+  if(!m){document.getElementById('rel-content').innerHTML='<div class="alert alert-blue">Nenhum mês cadastrado.</div>';return;}
+  const total=Object.values(m.cats).reduce((a,b)=>a+b,0);
+  const saldo=m.renda-total;
+  const totalFixos=fixos.reduce((a,b)=>a+b.val,0);
+  const parcelasEnd=fixos.filter(f=>f.subtipo==='parcela'&&f.rest<=3);
+  const receitas=lancs.filter(l=>l.tipo==='receita'||l.tipo==='pix-rec').reduce((a,b)=>a+b.val,0);
+  const despesas=lancs.filter(l=>l.tipo!=='receita'&&l.tipo!=='pix-rec').reduce((a,b)=>a+b.val,0);
+  const topCats=Object.entries(m.cats).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const tips=[];
+  if(m.cats.delivery>300)tips.push({t:'warning',msg:`Delivery em ${fmt(m.cats.delivery)} — acima de R$300. Meta: R$210/mês.`});
+  if(m.cats.noiva>800)tips.push({t:'warning',msg:`Noiva/família em ${fmt(m.cats.noiva)} — avaliar redução.`});
+  if(saldo<0)tips.push({t:'warning',msg:`Déficit de ${fmt(Math.abs(saldo))} este mês. Necessário cortar gastos.`});
+  if(saldo>=500)tips.push({t:'ok',msg:`Saldo positivo de ${fmt(saldo)} — continue economizando!`});
+  if(parcelasEnd.length>0)tips.push({t:'ok',msg:`${parcelasEnd.length} parcela(s) terminando em breve — liberará ${fmt(parcelasEnd.reduce((a,b)=>a+b.val,0))}/mês.`});
+  tips.push({t:'tip',msg:`Fixos = ${fmt(totalFixos)}/mês (${((totalFixos/m.renda)*100).toFixed(0)}% da renda). Avaliar cortes.`});
+  document.getElementById('rel-content').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;">
+      <div>
+        <div style="font-size:18px;font-weight:600;">Relatório — ${m.label}</div>
+        <div style="font-size:12px;color:var(--text2);">Gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})} · ${load(SK.profile,DEFAULT_PROFILE).name}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    </div>
+    <div class="report-section">
+      <h3>Resumo financeiro</h3>
+      <div class="report-item"><span>Renda total</span><span class="txt-green fw">${fmt(m.renda)}</span></div>
+      <div class="report-item"><span>Total de gastos</span><span class="txt-red fw">${fmt(total)}</span></div>
+      <div class="report-item"><span>Saldo do mês</span><span class="${saldo>=0?'txt-green':'txt-red'} fw">${saldo>=0?'+':''}${fmt(saldo)}</span></div>
+      <div class="report-item"><span>Taxa de comprometimento</span><span>${((total/m.renda)*100).toFixed(1)}%</span></div>
+      <div class="report-item"><span>Gastos fixos mensais</span><span>${fmt(totalFixos)}</span></div>
+    </div>
+    <div class="report-section">
+      <h3>Top 3 categorias</h3>
+      ${topCats.map(([k,v])=>`<div class="report-item"><span>${CAT_META[k]?.icon||''} ${CAT_META[k]?.label||k}</span><span class="fw">${fmt(v)} <span style="font-size:11px;color:var(--text2);">(${((v/total)*100).toFixed(1)}%)</span></span></div>`).join('')}
+    </div>
+    <div class="report-section">
+      <h3>Recomendações</h3>
+      ${tips.map(t=>`<div class="report-${t.t}">${t.msg}</div>`).join('')}
+    </div>
+    ${parcelasEnd.length>0?`<div class="report-section"><h3>Parcelas terminando em breve</h3>${parcelasEnd.map(f=>`<div class="report-item"><span>${f.desc}</span><span>${f.rest}x de ${fmt(f.val)} → <span class="txt-green">libera ${fmt(f.val)}/mês</span></span></div>`).join('')}</div>`:''}
+    <div class="report-section">
+      <h3>Lançamentos</h3>
+      <div class="report-item"><span>Receitas lançadas</span><span class="txt-green">${fmt(receitas)}</span></div>
+      <div class="report-item"><span>Despesas lançadas</span><span class="txt-red">${fmt(despesas)}</span></div>
+      <div class="report-item"><span>Total de registros</span><span>${lancs.length} itens</span></div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// MEMBROS / CONTAS
+// ═══════════════════════════════════════════════════════
+function renderMembros(){
+  const members=load(SK.members,DEFAULT_MEMBERS);
+  const profile=load(SK.profile,DEFAULT_PROFILE);
+  document.getElementById('profile-section').innerHTML=`
+    <div class="member-card">
+      <div class="member-avatar">👤</div>
+      <div class="member-info">
+        <div class="member-name">${profile.name}</div>
+        <div class="member-role">${profile.role}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="editProfile()">✏️ Editar perfil</button>
+    </div>`;
+  document.getElementById('members-list').innerHTML=members.length===0
+    ?'<div style="color:var(--text2);font-size:13px;padding:10px 0;">Nenhum membro vinculado ainda. Clique em "+ Vincular membro" para adicionar.</div>'
+    :members.map(mb=>`
+      <div class="member-card">
+        <div class="member-avatar">${mb.avatar||'👤'}</div>
+        <div class="member-info">
+          <div class="member-name">${mb.name}</div>
+          <div class="member-role">${mb.role||'—'}</div>
+          ${mb.renda>0?`<div style="font-size:11px;color:var(--green);margin-top:2px;">Renda: ${fmt(mb.renda)}/mês</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editMembro('${mb.id}')" title="Editar">✏️</button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMembro('${mb.id}')" title="Remover">🗑️</button>
+        </div>
+      </div>`).join('');
+  const months=load(SK.months,DEFAULT_MONTHS);
+  const totalGastos=Object.values(months[0]?.cats||{}).reduce((a,b)=>a+b,0);
+  const rendaDaniel=months[0]?.renda||0;
+  const rendaTotal=rendaDaniel+members.reduce((a,b)=>a+(b.renda||0),0);
+  const saldoComb=rendaTotal-totalGastos;
+  document.getElementById('combined-section').innerHTML=`
+    <div class="card-title">visão combinada</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+      <div class="metric" style="flex:1;min-width:120px;"><div class="metric-label">Renda combinada</div><div class="metric-val txt-green">${fmt(rendaTotal)}</div></div>
+      <div class="metric" style="flex:1;min-width:120px;"><div class="metric-label">Gastos (mês atual)</div><div class="metric-val txt-red">${fmt(totalGastos)}</div></div>
+      <div class="metric" style="flex:1;min-width:120px;"><div class="metric-label">Saldo combinado</div><div class="metric-val ${saldoComb>=0?'txt-green':'txt-red'}">${saldoComb>=0?'+':''}${fmt(saldoComb)}</div></div>
+    </div>`;
+}
+function openMembroModal(prefill){
+  document.getElementById('mmb-name').value=prefill?.name||'';
+  document.getElementById('mmb-role').value=prefill?.role||'';
+  document.getElementById('mmb-renda').value=prefill?.renda||'';
+  document.getElementById('mmb-avatar').value=prefill?.avatar||'👤';
+  document.getElementById('modal-membro').dataset.editId=prefill?.id||'';
+  document.getElementById('modal-membro').style.display='flex';
+}
+function closeMembroModal(){document.getElementById('modal-membro').style.display='none';}
+function saveMembro(){
+  const name=document.getElementById('mmb-name').value.trim();
+  if(!name){notify('Informe o nome.','error');return;}
+  const members=load(SK.members,DEFAULT_MEMBERS);
+  const editId=document.getElementById('modal-membro').dataset.editId;
+  const obj={id:editId||uid(),name,role:document.getElementById('mmb-role').value,renda:parseFloat(document.getElementById('mmb-renda').value)||0,avatar:document.getElementById('mmb-avatar').value||'👤'};
+  if(editId){const i=members.findIndex(m=>m.id===editId);if(i>=0)members[i]=obj;}
+  else members.push(obj);
+  save(SK.members,members);
+  closeMembroModal();
+  renderMembros();
+  notify(editId?'Membro atualizado!':'Membro adicionado!');
+}
+function editMembro(id){const mb=load(SK.members,DEFAULT_MEMBERS).find(m=>m.id===id);if(mb)openMembroModal(mb);}
+function deleteMembro(id){
+  if(!confirm('Remover este membro?'))return;
+  save(SK.members,load(SK.members,DEFAULT_MEMBERS).filter(m=>m.id!==id));
+  renderMembros();
+  notify('Membro removido.');
+}
+function editProfile(){
+  const p=load(SK.profile,DEFAULT_PROFILE);
+  document.getElementById('mp-name').value=p.name;
+  document.getElementById('mp-role').value=p.role;
+  document.getElementById('modal-profile').style.display='flex';
+}
+function closeProfileModal(){document.getElementById('modal-profile').style.display='none';}
+function saveProfile(){
+  const name=document.getElementById('mp-name').value.trim();
+  if(!name){notify('Informe o nome.','error');return;}
+  const p={name,role:document.getElementById('mp-role').value.trim()};
+  save(SK.profile,p);
+  document.getElementById('sidebar-name').textContent=p.name;
+  document.getElementById('sidebar-role').textContent=p.role;
+  closeProfileModal();
+  renderMembros();
+  notify('Perfil atualizado!');
+}
+
+// ═══════════════════════════════════════════════════════
+// AÇÃO MODAL (substitui prompt)
+// ═══════════════════════════════════════════════════════
+function closeAcaoModal(){document.getElementById('modal-acao').style.display='none';}
+function saveAcao(){
+  const id=document.getElementById('maa-id').value;
+  const acoes=load(SK.acoes,DEFAULT_ACOES);
+  const i=acoes.findIndex(a=>a.id===id);
+  if(i>=0){
+    acoes[i].acao=document.getElementById('maa-acao').value.trim()||acoes[i].acao;
+    acoes[i].impacto=parseFloat(document.getElementById('maa-impacto').value)||0;
+    acoes[i].dif=document.getElementById('maa-dif').value;
+    acoes[i].status=document.getElementById('maa-status').value;
+    save(SK.acoes,acoes);
+  }
+  closeAcaoModal();
+  renderMetas();
+  notify('Ação atualizada!');
+}
+
+// ═══════════════════════════════════════════════════════
+// META — CALC PROGRESSO AUTOMÁTICO
+// ═══════════════════════════════════════════════════════
+function calcMetaProg(){
+  const alvo=parseFloat(document.getElementById('mm-alvo').value)||0;
+  const atual=parseFloat(document.getElementById('mm-atual').value)||0;
+  if(alvo>0)document.getElementById('mm-prog').value=Math.min(100,Math.round((atual/alvo)*100));
 }
 </script>
 </body>
